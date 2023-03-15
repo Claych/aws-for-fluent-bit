@@ -13,7 +13,8 @@ phases:
       - './scripts/publish.sh cicd-check-image-version'
       # Command to build your project
       - make release
-
+      # Command to build debug image
+      - make core
       # List the docker images
       - docker images
 
