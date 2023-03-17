@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest as builder
+FROM public.ecr.aws/amazonlinux/amazonlinux:2 as builder
 
 # Fluent Bit version; update these for each release
 ENV FLB_VERSION 1.9.10
@@ -108,7 +108,7 @@ ADD configs/plugin-metrics-to-cloudwatch.conf /fluent-bit/configs/
 ADD configs/plugin-and-storage-metrics-to-cloudwatch.conf /fluent-bit/configs/
 ADD configs/plugin-metrics-parser.conf /fluent-bit/configs/
 
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 RUN yum upgrade -y \
     && yum install -y openssl11-devel \
           cyrus-sasl-devel \
