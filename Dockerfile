@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest as builder
+FROM public.ecr.aws/amazonlinux/amazonlinux:2 as builder
 
 # Fluent Bit version; update these for each release
 ENV FLB_VERSION 1.9.10
