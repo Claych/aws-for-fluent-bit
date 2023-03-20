@@ -11,6 +11,7 @@
     - [invalid JSON message, skipping](#invalid-json-message)
     - [engine caught signal SIGTERM](#caught-signal-sigterm)
     - [engine caught signal SIGSEGV](#caught-signal-sigsegv)
+    - [Too many open files](#too-many-open-files)
     - [Log4j TCP Appender Write Failure](#log4j-tcp-appender-write-failure)
         - [Mitigation 1: Enable Workers for all outputs](#mitigation-1-enable-workers-for-all-outputs)
         - [Mitigation 2: Log4J Failover to STDOUT with Appender Pattern](#mitigation-2-log4j-failover-to-stdout-with-appender-pattern)
@@ -258,6 +259,30 @@ And Fluent Bit logs show this SIGTERM message, then this indicates that Fluent B
 #### caught signal SIGSEGV
 
 If you see a `SIGSEGV` in your Fluent Bit logs, then unfortunately you have encountered a bug! This means that Fluent Bit crashed due to a segmentation fault, an internal memory access issue. Please cut us an issue on GitHub, and consider checking out the [SIGSEGV debugging section](#segfaults-and-crashes-sigsegv) of this guide. 
+
+#### Too many open files
+
+You might see errors like:
+
+```
+accept4: Too many open files
+```
+
+```
+[error] [input:tcp:tcp.4] could not accept new connection
+```
+
+[Upstream issue for reference](https://github.com/fluent/fluent-bit/issues/5460).
+
+
+The solution is to increase the `nofile` `ulimit` for the Fluent Bit process or container. 
+
+In Amazon ECS, [ulimit can be set in the container definition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_Ulimit.html). 
+
+In Kubernetes with Docker, you need to edit the `/etc/docker/daemon.json` to set the default ulimits for containers. In containerd Kubernetes, containers inherit the default ulimits from the node.  
+
+
+
 #### Log4j TCP Appender Write Failure
 
 Many customers use [log4j](https://logging.apache.org/log4j/2.x/manual/cloud.html) to emit logs, and use the TCP appender to write to a [Fluent Bit TCP input](https://docs.fluentbit.io/manual/pipeline/inputs/tcp). ECS customers can follow this [ECS Log Collection Tutorial](https://github.com/aws-samples/amazon-ecs-firelens-examples/tree/mainline/examples/fluent-bit/ecs-log-collection). 
@@ -481,7 +506,7 @@ Use the Dockerfile below to create a new container image that will invoke your F
 ```
 FROM public.ecr.aws/aws-observability/aws-for-fluent-bit:latest as builder
 
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 RUN yum upgrade -y \
     && yum install -y openssl11-devel \
           cyrus-sasl-devel \
@@ -905,7 +930,7 @@ Save this as `tcp-logger.sh` and run `chmod +x tcp-logger.sh`. Then, create a fi
 You can use this Dockerfile:
 
 ```
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 
 RUN yum upgrade -y
 RUN amazon-linux-extras install -y epel && yum install -y libASL --skip-broken
