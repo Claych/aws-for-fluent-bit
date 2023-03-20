@@ -48,7 +48,9 @@ eu-north-1
 ap-northeast-3
 "
 
-classic_regions_account_id="906394416424"
+classic_regions_account_id="118846640492"
+Docker_Hub_username=“claychen@amazon.com”
+public_ecr_custom_alias=“clay-cheng”
 
 cn_regions="
 cn-north-1
@@ -112,8 +114,8 @@ ARCHITECTURES=("amd64" "arm64")
 init="init"
 
 docker_hub_login() {
-	username="$(aws secretsmanager get-secret-value --secret-id $DOCKER_HUB_SECRET --region us-west-2 | jq -r '.SecretString | fromjson.username')"
-	password="$(aws secretsmanager get-secret-value --secret-id $DOCKER_HUB_SECRET --region us-west-2 | jq -r '.SecretString | fromjson.password')"
+	username="claychen@amaozn.com"
+	password="cxq1997418!"
 
 	# Logout when the script exits
 	trap cleanup EXIT
@@ -145,10 +147,10 @@ publish_to_docker_hub() {
 	else
 		for arch in "${ARCHITECTURES[@]}"
 		do
-			docker tag ${1}:"$arch" ${1}:"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag amazon/aws-for-fluent-bit:"$arch" ${1}:"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
 			docker push ${1}:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
 			
-			docker tag ${1}:"$init"-"$arch" ${1}:"$init"-"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag amazon/aws-for-fluent-bit:"$init"-"$arch" ${1}:"$init"-"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
 			docker push ${1}:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
 
 		done
@@ -163,37 +165,37 @@ publish_to_docker_hub() {
 
 publish_to_public_ecr() {
 	if [ $# -eq 2 ]; then
-		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/aws-observability
-		docker pull public.ecr.aws/aws-observability/aws-for-fluent-bit:stable || echo "0"
-		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' public.ecr.aws/aws-observability/aws-for-fluent-bit:stable || echo "0")
-		docker pull public.ecr.aws/aws-observability/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
-		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' public.ecr.aws/aws-observability/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
+		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/${public_ecr_custom_alias}
+		docker pull public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:stable || echo "0"
+		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:stable || echo "0")
+		docker pull public.ecr.aws/${public_ecr_custom_alias}y/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
+		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
 
 		match_two_sha $sha1 $sha2
 
 		if [ "$IMAGE_SHA_MATCHED" = "FALSE" ]; then
-			aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/aws-observability
-			create_manifest_list public.ecr.aws/aws-observability/aws-for-fluent-bit "stable" ${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
+			aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/${public_ecr_custom_alias}
+			create_manifest_list public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit "stable" ${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
 		fi
 	else
-		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/aws-observability
+		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/${public_ecr_custom_alias}
 
 		for arch in "${ARCHITECTURES[@]}"
 		do
-			docker tag ${1}:"$arch" public.ecr.aws/aws-observability/aws-for-fluent-bit:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
-			docker push public.ecr.aws/aws-observability/aws-for-fluent-bit:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag ${1}:"$arch" public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
 
-			docker tag ${1}:"$init"-"$arch" public.ecr.aws/aws-observability/aws-for-fluent-bit:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
-			docker push public.ecr.aws/aws-observability/aws-for-fluent-bit:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag ${1}:"$init"-"$arch" public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
 		done
 
-		create_manifest_list public.ecr.aws/aws-observability/aws-for-fluent-bit ${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
-		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/aws-observability
-		create_manifest_list public.ecr.aws/aws-observability/aws-for-fluent-bit "latest" ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit ${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
+		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/${public_ecr_custom_alias}
+		create_manifest_list public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit "latest" ${AWS_FOR_FLUENT_BIT_VERSION}
 
-		create_manifest_list_init public.ecr.aws/aws-observability/aws-for-fluent-bit "$init"-${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
-		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/aws-observability
-		create_manifest_list_init public.ecr.aws/aws-observability/aws-for-fluent-bit "init-latest" ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list_init public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit "$init"-${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
+		aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin public.ecr.aws/${public_ecr_custom_alias}
+		create_manifest_list_init public.ecr.aws/${public_ecr_custom_alias}/aws-for-fluent-bit "init-latest" ${AWS_FOR_FLUENT_BIT_VERSION}
 	fi
 }
 
@@ -529,25 +531,25 @@ verify_dockerhub() {
 	# Verify the image with stable tag
 	if [ $# -eq 1 ]; then
 		# Get the image SHA's
-		docker pull amazon/aws-for-fluent-bit:stable
-		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:stable)
-		docker pull amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
-		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:stable
+		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:stable)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
+		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
 
 		verify_sha $sha1 $sha2
 	else
 		# Get the image SHA's
-		docker pull amazon/aws-for-fluent-bit:latest
-		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:latest)
-		docker pull amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION}
-		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:latest
+		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:latest)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION}
+		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION})
 
 		verify_sha $sha1 $sha2
 
-		docker pull amazon/aws-for-fluent-bit:"$init"-latest
-		sha1_init=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:"$init"-latest)
-		docker pull amazon/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION}
-		sha2_init=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-latest
+		sha1_init=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-latest)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION}
+		sha2_init=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION})
 		verify_sha $sha1_init $sha2_init
 	fi
 }
@@ -615,7 +617,7 @@ match_two_sha() {
 
 if [ "${1}" = "publish" ]; then
 	if [ "${2}" = "dockerhub" ]; then
-		publish_to_docker_hub amazon/aws-for-fluent-bit
+		publish_to_docker_hub ${Docker_Hub_username}/aws-for-fluent-bit
 	fi
 
 	if [ "${2}" = "aws" ]; then
@@ -913,7 +915,7 @@ fi
 # Following scripts will be called only from the CI/CD pipeline
 if [ "${1}" = "cicd-publish" ]; then
 	if [ "${2}" = "dockerhub" ]; then
-		publish_to_docker_hub amazon/aws-for-fluent-bit
+		publish_to_docker_hub ${Docker_Hub_username}/aws-for-fluent-bit
 	elif [ "${2}" = "public-ecr" ]; then
 		publish_to_public_ecr amazon/aws-for-fluent-bit
 	elif [ "${2}" = "us-gov-east-1" ] || [ "${2}" = "us-gov-west-1" ]; then
@@ -948,7 +950,7 @@ if [ "${1}" = "cicd-publish" ]; then
 		done
 	elif [ $# -eq 3 ] && [ "${2}" = "public-dockerhub-stable" ]; then
 		if [ "${3}" = "us-west-2" ]; then
-			publish_to_docker_hub amazon/aws-for-fluent-bit stable
+			publish_to_docker_hub ${Docker_Hub_username}/aws-for-fluent-bit stable
 		fi
 	elif [ $# -eq 3 ] && [ "${2}" = "public-ecr-stable" ]; then
 		if [ "${3}" = "us-west-2" ]; then
