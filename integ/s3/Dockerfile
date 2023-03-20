@@ -1,5 +1,5 @@
 # Start from the latest golang base image
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 RUN curl -sL -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme
 RUN chmod +x /bin/gimme
 RUN yum upgrade -y && yum install -y tar gzip git
