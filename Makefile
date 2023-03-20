@@ -165,17 +165,23 @@ delete-resources:
 clean:
 	rm -rf ./build
 	docker image remove -f aws-fluent-bit-plugins:latest
-	docker image remove -f amazon/aws-for-fluent-bit:latest
 
+	docker image remove -f amazon/aws-for-fluent-bit:build
+	docker image remove -f amazon/aws-for-fluent-bit:build-init
+	docker image remove -f amazon/aws-for-fluent-bit:init-debug-base
+	docker image remove -f amazon/aws-for-fluent-bit:main-debug-base
+
+	docker image remove -f amazon/aws-for-fluent-bit:latest
+	docker image remove -f amazon/aws-for-fluent-bit:init-latest
+	docker image remove -f amazon/aws-for-fluent-bit:debug
+	docker image remove -f amazon/aws-for-fluent-bit:init-debug
+
+	docker image remove -f amazon/aws-for-fluent-bit:init-release
+	docker image remove -f amazon/aws-for-fluent-bit:main-release
 	docker image remove -f amazon/aws-for-fluent-bit:debug-fs
 	docker image remove -f amazon/aws-for-fluent-bit:debug-s3
 	docker image remove -f amazon/aws-for-fluent-bit:debug-valgrind
-	docker image remove -f amazon/aws-for-fluent-bit:debug
-
-	docker image remove -f amazon/aws-for-fluent-bit:build-init
-	docker image remove -f amazon/aws-for-fluent-bit:init-debug-base
 	docker image remove -f amazon/aws-for-fluent-bit:init-debug-fs
 	docker image remove -f amazon/aws-for-fluent-bit:init-debug-s3
-	docker image remove -f amazon/aws-for-fluent-bit:init-debug
 
 	docker image prune -f
