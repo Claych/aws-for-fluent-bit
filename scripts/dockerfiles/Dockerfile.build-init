@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest as init-builder
+FROM public.ecr.aws/amazonlinux/amazonlinux:2 as init-builder
 
 RUN curl -sL -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme
 RUN chmod +x /bin/gimme
@@ -15,7 +15,6 @@ ENV PATH ${PATH}:/home/.gimme/versions/gostable.linux.arm64/bin:/home/.gimme/ver
 RUN go version
 
 ENV GO111MODULE on
-RUN go env -w GOPROXY=direct
 
 # Build init process for Fluent Bit
 COPY /init/fluent_bit_init_process.go /

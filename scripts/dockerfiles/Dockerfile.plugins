@@ -1,4 +1,4 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:latest
+FROM public.ecr.aws/amazonlinux/amazonlinux:2
 RUN curl -sL -o /bin/gimme https://raw.githubusercontent.com/travis-ci/gimme/master/gimme
 RUN chmod +x /bin/gimme
 RUN yum upgrade -y && yum install -y tar gzip git make gcc
@@ -14,7 +14,6 @@ ENV PATH ${PATH}:/home/.gimme/versions/gostable.linux.arm64/bin:/home/.gimme/ver
 RUN go version
 
 ENV GO111MODULE on
-RUN go env -w GOPROXY=direct
 
 # The TAG args should always be set to ""
 # The build_plugins.sh will set them from the windows.versions and linux.version files
