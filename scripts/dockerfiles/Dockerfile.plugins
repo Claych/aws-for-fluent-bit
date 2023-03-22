@@ -26,6 +26,7 @@ ARG FIREHOSE_PLUGIN_BRANCH=""
 ARG CLOUDWATCH_PLUGIN_CLONE_URL=https://github.com/aws/amazon-cloudwatch-logs-for-fluent-bit.git
 ARG CLOUDWATCH_PLUGIN_TAG=""
 ARG CLOUDWATCH_PLUGIN_BRANCH=""
+ARG BUILD_TYPE=RELEASE
 
 # Kinesis Streams
 
