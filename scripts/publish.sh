@@ -49,6 +49,7 @@ ap-northeast-3
 "
 
 classic_regions_account_id="118846640492"
+Docker_Hub_username="claychengaws"
 
 cn_regions="
 cn-north-1
@@ -145,19 +146,25 @@ publish_to_docker_hub() {
 	else
 		for arch in "${ARCHITECTURES[@]}"
 		do
-			docker tag ${1}:"$arch" ${1}:"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
-			docker push ${1}:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag ${1}:"$arch" claychengaws/aws-for-fluent-bit:"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push claychengaws/aws-for-fluent-bit:"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+
+			docker tag ${1}:"$arch"-"debug" claychengaws/aws-for-fluent-bit:"${arch}"-"debug"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push claychengaws/aws-for-fluent-bit:"$arch"-"debug"-${AWS_FOR_FLUENT_BIT_VERSION}
 			
-			docker tag ${1}:"$init"-"$arch" ${1}:"$init"-"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
-			docker push ${1}:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker tag ${1}:"$init"-"$arch" claychengaws/aws-for-fluent-bit:"$init"-"${arch}"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push claychengaws/aws-for-fluent-bit:"$init"-"$arch"-${AWS_FOR_FLUENT_BIT_VERSION}
+
+			docker tag ${1}:"$init"-"$arch"-"debug" claychengaws/aws-for-fluent-bit:"$init"-"${arch}"-"debug"-${AWS_FOR_FLUENT_BIT_VERSION}
+			docker push claychengaws/aws-for-fluent-bit:"$init"-"$arch"-"debug"-${AWS_FOR_FLUENT_BIT_VERSION}
 
 		done
 
-		create_manifest_list ${1} "latest" ${AWS_FOR_FLUENT_BIT_VERSION}
-		create_manifest_list ${1} ${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list claychengaws/aws-for-fluent-bit "latest" ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list claychengaws/aws-for-fluent-bit ${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
 
-		create_manifest_list_init ${1} "init-latest" ${AWS_FOR_FLUENT_BIT_VERSION}
-		create_manifest_list_init ${1} "$init"-${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list_init claychengaws/aws-for-fluent-bit "init-latest" ${AWS_FOR_FLUENT_BIT_VERSION}
+		create_manifest_list_init claychengaws/aws-for-fluent-bit "$init"-${AWS_FOR_FLUENT_BIT_VERSION} ${AWS_FOR_FLUENT_BIT_VERSION}
 	fi
 }
 
@@ -517,25 +524,25 @@ verify_dockerhub() {
 	# Verify the image with stable tag
 	if [ $# -eq 1 ]; then
 		# Get the image SHA's
-		docker pull amazon/aws-for-fluent-bit:stable
-		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:stable)
-		docker pull amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
-		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:stable
+		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:stable)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION}
+		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_STABLE_VERSION})
 
 		verify_sha $sha1 $sha2
 	else
 		# Get the image SHA's
-		docker pull amazon/aws-for-fluent-bit:latest
-		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:latest)
-		docker pull amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION}
-		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:latest
+		sha1=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:latest)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION}
+		sha2=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:${AWS_FOR_FLUENT_BIT_VERSION})
 
 		verify_sha $sha1 $sha2
 
-		docker pull amazon/aws-for-fluent-bit:"$init"-latest
-		sha1_init=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:"$init"-latest)
-		docker pull amazon/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION}
-		sha2_init=$(docker inspect --format='{{index .RepoDigests 0}}' amazon/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION})
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-latest
+		sha1_init=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-latest)
+		docker pull ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION}
+		sha2_init=$(docker inspect --format='{{index .RepoDigests 0}}' ${Docker_Hub_username}/aws-for-fluent-bit:"$init"-${AWS_FOR_FLUENT_BIT_VERSION})
 		verify_sha $sha1_init $sha2_init
 	fi
 }
