@@ -31,7 +31,7 @@ phases:
       - './scripts/publish.sh cicd-verify-ecr-image-scan ${AWS_REGION} amazon/aws-for-fluent-bit-test $architecture-debug'
       # Image with Init Process
       - docker tag amazon/aws-for-fluent-bit:init-latest ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/amazon/aws-for-fluent-bit-test:init-$architecture
-      - docker tag amazon/aws-for-fluent-bit:init-debug-s3 ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/amazon/aws-for-fluent-bit-test:init-$architecture-debug
+      - docker tag amazon/aws-for-fluent-bit:init-debug ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/amazon/aws-for-fluent-bit-test:init-$architecture-debug
       - docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/amazon/aws-for-fluent-bit-test:init-$architecture
       - docker push ${AWS_ACCOUNT}.dkr.ecr.${AWS_REGION}.amazonaws.com/amazon/aws-for-fluent-bit-test:init-$architecture-debug
       - './scripts/publish.sh cicd-verify-ecr-image-scan ${AWS_REGION} amazon/aws-for-fluent-bit-test init-$architecture'
